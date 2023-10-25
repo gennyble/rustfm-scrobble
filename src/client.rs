@@ -1,7 +1,6 @@
 // Last.fm scrobble API 2.0 client
 use std::collections::HashMap;
 use std::fmt;
-use ureq;
 
 use crate::auth::Credentials;
 use crate::models::responses::{
@@ -82,8 +81,8 @@ impl LastFm {
         Ok(decoded.session)
     }
 
-    /// Authenticates with a session key 
-    /// 
+    /// Authenticates with a session key
+    ///
     /// This requires no initial authentication with the API, so we simply store the key. It must be a valid session
     /// key. Session keys are documented at `Scrobbler::authenticate_with_session_key`.
     pub fn authenticate_with_session_key(&mut self, session_key: &str) {
@@ -152,7 +151,7 @@ impl LastFm {
             req_params.insert(k.clone(), v.clone());
         }
 
-        self.api_request(&operation, req_params)
+        self.api_request(operation, req_params)
     }
 
     fn api_request(
@@ -161,7 +160,7 @@ impl LastFm {
         params: HashMap<String, String>,
     ) -> Result<String, String> {
         let resp = self
-            .send_request(&operation, params)
+            .send_request(operation, params)
             .map_err(|err| err.to_string())?;
 
         if resp.error() {

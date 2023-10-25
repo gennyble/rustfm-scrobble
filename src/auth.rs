@@ -27,12 +27,10 @@ enum CredentialsVariant {
 }
 
 impl UserCredentials {
-
     /// Returns true when a valid username & password are set
     pub fn can_authenticate(&self) -> bool {
         !self.username.is_empty() && !self.password.is_empty()
     }
-
 }
 
 impl Credentials {
@@ -71,7 +69,7 @@ impl Credentials {
     }
 
     pub fn session_key(&self) -> Option<&str> {
-        self.session_key.as_ref().map(std::ops::Deref::deref)
+        self.session_key.as_deref()
     }
 
     // Returns true if we are currently authenticated (have a valid session token set)
@@ -177,8 +175,8 @@ mod tests {
 
     #[test]
     fn check_set_user_creds() {
-        let mut auth_creds = Credentials::new_partial("Key".into(), "Secret".into());
-        auth_creds.set_user_credentials("Username".into(), "Password".into());
+        let mut auth_creds = Credentials::new_partial("Key", "Secret");
+        auth_creds.set_user_credentials("Username", "Password");
 
         let internal_creds = auth_creds.credentials.unwrap();
 
@@ -193,8 +191,8 @@ mod tests {
 
     #[test]
     fn check_set_user_token() {
-        let mut auth_creds = Credentials::new_partial("Key".into(), "Secret".into());
-        auth_creds.set_user_token("Token".into());
+        let mut auth_creds = Credentials::new_partial("Key", "Secret");
+        auth_creds.set_user_token("Token");
 
         let token = auth_creds.credentials.unwrap();
 
@@ -208,8 +206,8 @@ mod tests {
 
     #[test]
     fn check_set_session_key_and_is_authed() {
-        let mut auth_creds = Credentials::new_partial("Key".into(), "Secret".into());
-        auth_creds.set_session_key("SomeKey".into());
+        let mut auth_creds = Credentials::new_partial("Key", "Secret");
+        auth_creds.set_session_key("SomeKey");
         let key = auth_creds.session_key().unwrap();
 
         assert_eq!(key, "SomeKey");
@@ -218,13 +216,13 @@ mod tests {
 
     #[test]
     fn check_auth_req_params_and_get_signature() {
-        let mut auth_creds = Credentials::new_partial("Key".into(), "Secret".into());
-        auth_creds.set_user_token("Token".into());
+        let mut auth_creds = Credentials::new_partial("Key", "Secret");
+        auth_creds.set_user_token("Token");
         let param_map = auth_creds.get_auth_request_params().unwrap();
 
         assert_eq!(param_map["token"], "Token");
 
-        auth_creds.set_user_credentials("Foo".into(), "Bar".into());
+        auth_creds.set_user_credentials("Foo", "Bar");
         let param_map = auth_creds.get_auth_request_params().unwrap();
 
         assert_eq!(param_map["username"], "Foo");
@@ -240,11 +238,11 @@ mod tests {
 
     #[test]
     fn check_req_params() {
-        let mut auth_creds = Credentials::new_partial("Key".into(), "Secret".into());
-        auth_creds.set_session_key("SomeKey".into());
+        let mut auth_creds = Credentials::new_partial("Key", "Secret");
+        auth_creds.set_session_key("SomeKey");
         let req_params = auth_creds.get_request_params();
 
-        assert_eq!(req_params["api_key".into()], "Key");
-        assert_eq!(req_params["sk".into()], "SomeKey");
+        assert_eq!(req_params["api_key"], "Key");
+        assert_eq!(req_params["sk"], "SomeKey");
     }
 }
